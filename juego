@@ -1,0 +1,295 @@
+#include <stdio.h>
+#include <iostream>
+#include <windows.h>
+#include <conio.h>
+
+using namespace std;
+
+void gotoxy(int x,int y){
+    //crear pantalla
+    HANDLE pantalla;
+    pantalla=GetStdHandle(STD_OUTPUT_HANDLE);
+    //poner las cordenadas del personaje
+    COORD coord_personaje;
+    coord_personaje.X=x;
+    coord_personaje.Y=y;
+    //imprimir en la pantalla
+    SetConsoleCursorPosition(pantalla,coord_personaje);
+}
+
+void ocultar(){
+    HANDLE juegodenave;
+    juegodenave=GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursor;
+    cursor.dwSize=10;
+    cursor.bVisible=FALSE;
+    SetConsoleCursorInfo(juegodenave,&cursor);
+}
+
+void limites_de_pantalla(){
+    //limite superior e inferior
+    for(int i=0;i<81;i++){
+        gotoxy(i,0);printf("%c",205); //superior
+        gotoxy(i,45);printf("%c",205); //inferior
+        gotoxy(i,2);printf("%c",205); //segundo limite superior
+        gotoxy(i,44);printf("T"); //piso del juego
+    }
+    //limite de derecha e izquierda
+    for(int i=0;i<45;i++){
+        gotoxy(0,i);printf("%c",186); //izquierda
+        gotoxy(80,i);printf("%c",186); //derecha
+    }
+    //lineas del camino
+    for(int i=3;i<45;i++){
+        gotoxy(8,i);printf("%c",186); //numero1
+        gotoxy(16,i);printf("%c",186); //numero1
+        gotoxy(24,i);printf("%c",186); //numero1
+        gotoxy(32,i);printf("%c",186); //numero1
+        gotoxy(40,i);printf("%c",186); //numero1
+        gotoxy(48,i);printf("%c",186); //numero1
+        gotoxy(56,i);printf("%c",186); //numero1
+        gotoxy(64,i);printf("%c",186); //numero1
+        gotoxy(72,i);printf("%c",186); //numero1
+
+    }
+ //esquinas de la pantalla
+ gotoxy(0,0);printf("%c",201); //esquina superior izquierda
+ gotoxy(1,1);printf("BUENA SUERTE"); //esquina superior izquierda
+ gotoxy(36,1);printf("SOBREVIVE"); //esquina superior izquierda
+ gotoxy(0,2);printf("%c",204); //esquina superior izquierda2
+ gotoxy(0,45);printf("%c",200); //esquina inferior izquierda
+ gotoxy(80,0);printf("%c",187); //esquina superior derecha
+ gotoxy(80,2);printf("%c",185); //esquina superior derecha2
+ gotoxy(80,45);printf("%c",188); //esquina inferior derecha
+}
+
+
+//graficar en la pantalla los bordes
+void limites(){
+    //limite superior e inferior
+    for(int i=0;i<81;i++){
+        gotoxy(i,0);printf("%c",205); //superior
+        gotoxy(i,45);printf("%c",205); //inferior
+        gotoxy(i,2);printf("%c",205); //segundo limite superior
+        gotoxy(i,44);printf("T"); //piso del juego
+    }
+    //limite de derecha e izquierda
+    for(int i=0;i<45;i++){
+        gotoxy(0,i);printf("%c",186); //izquierda
+        gotoxy(80,i);printf("%c",186); //derecha
+    }
+    //lineas del camino
+    for(int i=3;i<45;i++){
+        gotoxy(8,i);printf(" "); //numero1
+        gotoxy(16,i);printf(" "); //numero1
+        gotoxy(24,i);printf(" "); //numero1
+        gotoxy(32,i);printf(" "); //numero1
+        gotoxy(40,i);printf(" "); //numero1
+        gotoxy(48,i);printf(" "); //numero1
+        gotoxy(56,i);printf(" "); //numero1
+        gotoxy(64,i);printf(" "); //numero1
+        gotoxy(72,i);printf(" "); //numero1
+
+    }
+ //esquinas de la pantalla
+ gotoxy(0,0);printf("%c",201); //esquina superior izquierda
+ gotoxy(1,1);printf("BUENA SUERTE"); //esquina superior izquierda
+ gotoxy(36,1);printf("SOBREVIVE"); //esquina superior izquierda
+ gotoxy(68,1);printf("SALUD:"); //esquina superior izquierda
+ gotoxy(50,1);printf("VIDAS:"); //esquina superior izquierda
+ gotoxy(0,2);printf("%c",204); //esquina superior izquierda2
+ gotoxy(0,45);printf("%c",200); //esquina inferior izquierda
+ gotoxy(80,0);printf("%c",187); //esquina superior derecha
+ gotoxy(80,2);printf("%c",185); //esquina superior derecha2
+ gotoxy(80,45);printf("%c",188); //esquina inferior derecha
+}
+
+class NAVE{
+    int x,y;
+    int vidas;
+    int perdiste;
+    public:
+    NAVE(int _x,int _y,int _vidas,int _perdiste):x(_x),y(_y),vidas(_vidas),perdiste(_perdiste){}
+    int X(){return x;}
+    int Y(){return y;}
+    int VID(){return perdiste;}
+    void coor(){ vidas--;}
+    void pintar();
+    void borrar();
+    void mover();
+    void nvidas();
+    void morir();
+};
+void NAVE::pintar(){
+    gotoxy(x,y);   printf(" %c ",226);
+    gotoxy(x,y+1); printf("%c%c%c",196,124,196);
+    gotoxy(x,y+2); printf("%c %c",47,92);
+}
+void NAVE::borrar(){
+    gotoxy(x-1,y);   printf("     ");
+    gotoxy(x-1,y+1); printf("     ");
+    gotoxy(x-1,y+2); printf("     ");
+    gotoxy(x-1,y+3); printf("     ");
+    gotoxy(x-1,y+4); printf("     ");
+    gotoxy(x-1,y+5); printf("     ");
+    gotoxy(x-1,y+6); printf("     ");
+    gotoxy(x-1,y+7); printf("     ");
+}
+void NAVE::mover(){
+    if(kbhit()){
+            borrar();
+            char tecla=getch();
+            if(tecla=='d' && x<81){
+                x=x+8;pintar();Sleep(50);borrar();
+            }
+            if(tecla=='a' && x>1){
+                x=x-8;pintar();Sleep(50);borrar();
+            }
+            pintar();
+    }
+    pintar();
+    nvidas();
+}
+void NAVE::nvidas(){
+
+    gotoxy (50,1);printf("VIDAS:%d",perdiste);
+    gotoxy(68,1);printf("SALUD:");
+    gotoxy(74,1);printf("      ");
+    for(int i=0;i<vidas;i++){
+        gotoxy(74+i,1);printf("%c",190);
+    }
+}
+void NAVE::morir(){
+    if(vidas==0){
+        borrar();
+        gotoxy(x-1,y);   printf("     ");
+        gotoxy(x-1,y+1); printf("%c%c%c%c%c",226,196,196,196,196);
+        gotoxy(x-1,y+2); printf("     ");
+        Sleep(400);
+        borrar();
+        gotoxy(x-1,y);   printf("     ");
+        gotoxy(x-1,y+1); printf("%c%c%c%c%c",226,196,196,196,196);
+        gotoxy(x-1,y+2); printf("     ");
+        Sleep(400);
+        borrar();
+
+        perdiste--;
+        vidas=3;
+        nvidas();
+        pintar();
+
+    }
+
+}
+
+
+class obstaculo1{
+    int x,y,vel;
+    public:
+    obstaculo1(int _x,int _y,int _vel):x(_x),y(_y),vel(_vel){}
+    void pintar();
+    void borrar();
+    void mover();
+    void choque(struct NAVE &N);
+};
+void obstaculo1::pintar(){
+    gotoxy(x,y);   printf("%c%c%c",124,124,124);
+    gotoxy(x,y+1); printf(" %c ",226);
+    gotoxy(x,y+2); printf("%c%c%c",196,124,196);
+    gotoxy(x,y+3); printf("%c %c",47,92);
+}
+void obstaculo1::borrar(){
+    gotoxy(x,y);   printf("   ");
+    gotoxy(x,y+1);   printf("   ");
+    gotoxy(x,y+2);   printf("   ");
+    gotoxy(x,y+3);   printf("   ");
+}
+void obstaculo1::mover(){
+
+    gotoxy(x,y);borrar();
+    vel=rand()%5+1;
+    if(vel==5){
+        vel=4;
+    }
+    y=y+vel;;
+    if(y>40){
+        y=3;
+    }
+    pintar();
+}
+void obstaculo1::choque(struct NAVE &N){
+    if(x>=N.X() && x<N.X()+3 && y>=N.Y() ){
+       N.coor();
+       N.pintar();
+       N.nvidas();
+       y=4;
+       borrar();
+    }
+}
+
+
+int main()
+{
+    ocultar();
+    int n;
+    int puntaje=0;
+    bool perdiste=false;
+    int per=1;
+    if(per==1){
+            limites();
+        gotoxy(30,22);printf("ESCRIBA 1 PARA EMPEZAR: ");cin>>n;
+        gotoxy(30,22);printf("                          ");
+        limites_de_pantalla();
+        if(n==1){
+        obstaculo1 numero_1(3,4,2),numero_3(19,4,1),numero_5(35,4,3),numero_6(43,4,2),numero_9(67,4,1),numero_10(75,4,1),numero_2(11,4,3),numero_4(27,4,2),numero_7(51,4,1),numero_8(59,4,1);
+    NAVE N(43,36,3,3);
+    numero_1.pintar();
+    numero_2.pintar();
+    numero_3.pintar();
+    numero_4.pintar();
+    numero_5.pintar();
+    numero_6.pintar();
+    numero_7.pintar();
+    numero_8.pintar();
+    numero_9.pintar();
+    numero_10.pintar();
+    N.pintar();
+    N.nvidas();
+    while(!perdiste){
+            numero_1.mover();numero_1.choque(N);
+            numero_2.mover();numero_2.choque(N);
+            numero_3.mover();numero_3.choque(N);
+            numero_4.mover();numero_4.choque(N);
+            numero_5.mover();numero_5.choque(N);
+            numero_6.mover();numero_6.choque(N);
+            numero_7.mover();numero_7.choque(N);
+            numero_8.mover();numero_8.choque(N);
+            numero_9.mover();numero_9.choque(N);
+            numero_10.mover();numero_10.choque(N);
+            N.mover();
+            N.morir();
+            puntaje++;
+            Sleep(50);
+            if(N.VID() == 0){
+                perdiste=true;
+                N.borrar();
+                numero_1.borrar();
+                numero_2.borrar();
+                numero_3.borrar();
+                numero_4.borrar();
+                numero_5.borrar();
+                numero_6.borrar();
+                numero_7.borrar();
+                numero_8.borrar();
+                numero_9.borrar();
+                numero_10.borrar();
+    limites();
+                gotoxy(23,20);printf("PERdISTE MEJOR SUDRTE A LA PROXIMA");
+                gotoxy(23,21);printf("TU PUNTAJE FUE:%d",puntaje);
+            }
+    }
+    }
+            }
+
+    return 0;
+}
